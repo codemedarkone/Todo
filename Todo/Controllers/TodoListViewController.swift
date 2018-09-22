@@ -12,52 +12,59 @@ class TodoListViewController: UITableViewController {
 
     var itemArray = [Item]()
     
-    let defaults = UserDefaults.standard
+    //NSCODER: created a specified file path on the iphone and created this file Items.plist to save data in
+    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
+    
+//    let defaults = UserDefaults.standard
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        var newItem = Item()
-        newItem.title = "Find Mike"
-        itemArray.append(newItem)
         
-        var newItem2 = Item()
-        newItem2.title = "Buy Eggs"
-        itemArray.append(newItem2)
+        //dont need cause we have the plist 
+//        var newItem = Item()
+//        newItem.title = "Find Mike"
+//        itemArray.append(newItem)
+//
+//        var newItem2 = Item()
+//        newItem2.title = "Buy Eggs"
+//        itemArray.append(newItem2)
+//
+//        var newItem3 = Item()
+//        newItem3.title = "Destroy Demogorgon"
+//        itemArray.append(newItem3)
         
-        var newItem3 = Item()
-        newItem3.title = "Destroy Demogorgon"
-        itemArray.append(newItem3)
+//        itemArray.append(newItem3)
+//        itemArray.append(newItem3)
+//        itemArray.append(newItem3)
+//        itemArray.append(newItem3)
+//        itemArray.append(newItem3)
+//        itemArray.append(newItem3)
+//        itemArray.append(newItem3)
+//        itemArray.append(newItem3)
+//        itemArray.append(newItem3)
+//        itemArray.append(newItem3)
+//        itemArray.append(newItem3)
+//        itemArray.append(newItem3)
+//        itemArray.append(newItem3)
+//        itemArray.append(newItem3)
+//        itemArray.append(newItem3)
+//        itemArray.append(newItem3)
+//        itemArray.append(newItem3)
+//        itemArray.append(newItem3)
+//        itemArray.append(newItem3)
+//        itemArray.append(newItem3)
         
-//        itemArray.append(newItem3)
-//        itemArray.append(newItem3)
-//        itemArray.append(newItem3)
-//        itemArray.append(newItem3)
-//        itemArray.append(newItem3)
-//        itemArray.append(newItem3)
-//        itemArray.append(newItem3)
-//        itemArray.append(newItem3)
-//        itemArray.append(newItem3)
-//        itemArray.append(newItem3)
-//        itemArray.append(newItem3)
-//        itemArray.append(newItem3)
-//        itemArray.append(newItem3)
-//        itemArray.append(newItem3)
-//        itemArray.append(newItem3)
-//        itemArray.append(newItem3)
-//        itemArray.append(newItem3)
-//        itemArray.append(newItem3)
-//        itemArray.append(newItem3)
-//        itemArray.append(newItem3)
+        loadItems()
         
         //This works to check optional
 //        guard let items = defaults.array(forKey: "TodoListArray") as? [Item] else { return }
 //        itemArray = items
         
-        if let items = defaults.array(forKey: "TodoListArray") as? [Item] {
-            itemArray = items
-        }
+//        if let items = defaults.array(forKey: "TodoListArray") as? [Item] {
+//            itemArray = items
+//        }
 //        if let items = defaults.array(forKey: "TodoListArray") as? [String] {
 //            itemArray = items
 //        }
@@ -105,7 +112,9 @@ class TodoListViewController: UITableViewController {
 //            itemArray[indexPath.row].done = false
 //        }
         
-        tableView.reloadData()
+        saveItems()
+        //no longer need since we are using the plist
+//        tableView.reloadData()
 
         //I can remove these now that i have the above code
 //        if tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark {
@@ -134,10 +143,8 @@ class TodoListViewController: UITableViewController {
             newItem.title = textField.text!
             
             self.itemArray.append(newItem)
-            
-            self.defaults.set(self.itemArray, forKey: "TodoListArray")
-            
-            self.tableView.reloadData()
+
+            self.saveItems()
         }
         
         alert.addTextField { (alertTextField) in
@@ -150,6 +157,34 @@ class TodoListViewController: UITableViewController {
         alert.addAction(action)
         
         present(alert, animated: true, completion: nil)
+    }
+    
+    func saveItems() {
+        let encoder = PropertyListEncoder()
+        
+        do {
+            let data = try encoder.encode(itemArray)
+            try data.write(to: dataFilePath!)
+        } catch {
+            print("Error encoding item array, \(error)")
+        }
+        //            self.defaults.set(self.itemArray, forKey: "TodoListArray")
+        
+        self.tableView.reloadData()
+    }
+    
+    func loadItems(){
+        if let data = try? Data(contentsOf: dataFilePath!) {
+            let decoder = PropertyListDecoder()
+            
+            do {
+                
+            itemArray = try decoder.decode([Item].self, from: data)
+                
+            } catch {
+                print("Error decoding dataArray")
+            }
+        }
     }
     
 
